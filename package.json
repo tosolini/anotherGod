@@ -33,7 +33,11 @@
       "publish": [
         "github"
       ],
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "publish": [
@@ -50,7 +54,6 @@
       "target": [
         "AppImage",
         "deb",
-        "rpm",
         "tar.gz"
       ],
       "category": "Network"
