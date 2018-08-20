@@ -7,6 +7,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "start": "electron .",
+    "test": "electron .",
     "mac": "electron-builder -m",
     "win": "electron-builder -w",
     "lin": "electron-builder -l",
