@@ -1,4 +1,8 @@
-# software used
+# <img src="https://software.tosolini.info/wp-content/uploads/sites/5/2018/08/gmailicon@2x.png" width="60px" align="center" alt="Another God"> Another G.O.D.
+
+![Build Status](https://travis-ci.com/tosolini/anotherGod.svg?branch=master)](https://travis-ci.com/tosolini/anotherGod)
+
+# Useful links
 - [Another God home page](https://software.tosolini.info/ita/anothergod) (in italian language)
 - [My Website](https://tosolini.info)
 - [Steemit blog](https://steemit.com/@tosolini)
