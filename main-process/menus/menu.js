@@ -1,7 +1,7 @@
-const electron = require('electron')
-const BrowserWindow = electron.BrowserWindow
-const Menu = electron.Menu
-const app = electron.app
+const electron = require('electron');
+const BrowserWindow = electron.BrowserWindow;
+const Menu = electron.Menu;
+const app = electron.app;
 
 
 let template = [{
@@ -40,7 +40,7 @@ let template = [{
     accelerator: 'C',
     click: function (item, focusedWindow){
       if (focusedWindow){
-        focusedWindow.webContents.send('newMailIpc' , 1)
+        focusedWindow.webContents.send('newMailIpc' , 1);
       }
     }
   },{
@@ -48,7 +48,7 @@ let template = [{
     enabled: false,
     click: function (item, focusedWindow){
       if (focusedWindow){
-        focusedWindow.webContents.send('lastSessionIpc', 1)
+        focusedWindow.webContents.send('lastSessionIpc', 1);
       }
     }
   },{
@@ -56,7 +56,7 @@ let template = [{
     enabled: false,
     click: function(item, focusedWindow){
       if (focusedWindow){
-        focusedWindow.webContents.send('storageIpc', 1)
+        focusedWindow.webContents.send('storageIpc', 1);
       }
     }
   }]
@@ -72,25 +72,25 @@ let template = [{
         if (focusedWindow.id === 1) {
           BrowserWindow.getAllWindows().forEach(function (win) {
             if (win.id > 1) {
-              win.close()
+              win.close();
             }
-          })
+          });
         }
-        focusedWindow.reload()
+        focusedWindow.reload();
       }
     }
   }, {
     label: 'Toggle Full Screen',
     accelerator: (function () {
       if (process.platform === 'darwin') {
-        return 'Ctrl+Command+F'
+        return 'Ctrl+Command+F';
       } else {
-        return 'F11'
+        return 'F11';
       }
     })(),
     click: function (item, focusedWindow) {
       if (focusedWindow) {
-        focusedWindow.setFullScreen(!focusedWindow.isFullScreen())
+        focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
       }
     }
   }]
@@ -113,7 +113,7 @@ let template = [{
     enabled: false,
     key: 'reopenMenuItem',
     click: function () {
-      app.emit('activate')
+      app.emit('activate');
     }
   }]
 }, {
@@ -122,15 +122,15 @@ let template = [{
   submenu: [{
     label: 'Learn More',
     click: function () {
-      electron.shell.openExternal('https://tosolini.info')
+      electron.shell.openExternal('https://tosolini.info');
     }
   }]
-}]
+}];
 
 function addUpdateMenuItems (items, position) {
-  if (process.mas) return
+  if (process.mas) return;
 
-  const version = electron.app.getVersion()
+  const version = electron.app.getVersion();
   let updateItems = [{
     label: `Version ${version}`,
     enabled: false
@@ -143,7 +143,7 @@ function addUpdateMenuItems (items, position) {
     visible: true,
     key: 'checkForUpdate',
     click: function () {
-      require('electron').autoUpdater.checkForUpdates()
+      require('electron').autoUpdater.checkForUpdates();
     }
   }, {
     label: 'Restart and Install Update',
@@ -151,32 +151,32 @@ function addUpdateMenuItems (items, position) {
     visible: false,
     key: 'restartToUpdate',
     click: function () {
-      require('electron').autoUpdater.quitAndInstall()
+      require('electron').autoUpdater.quitAndInstall();
     }
-  }]
+  }];
 
-  items.splice.apply(items, [position, 0].concat(updateItems))
+  items.splice.apply(items, [position, 0].concat(updateItems));
 }
 
 function findReopenMenuItem () {
-  const menu = Menu.getApplicationMenu()
-  if (!menu) return
+  const menu = Menu.getApplicationMenu();
+  if (!menu) return;
 
-  let reopenMenuItem
+  let reopenMenuItem;
   menu.items.forEach(function (item) {
     if (item.submenu) {
       item.submenu.items.forEach(function (item) {
         if (item.key === 'reopenMenuItem') {
-          reopenMenuItem = item
+          reopenMenuItem = item;
         }
-      })
+      });
     }
-  })
-  return reopenMenuItem
+  });
+  return reopenMenuItem;
 }
 
 if (process.platform === 'darwin') {
-  const name = electron.app.getName()
+  const name = electron.app.getName();
   template.unshift({
     label: name,
     submenu: [{
@@ -207,10 +207,10 @@ if (process.platform === 'darwin') {
       label: 'Quit',
       accelerator: 'Command+Q',
       click: function () {
-        app.quit()
+        app.quit();
       }
     }]
-  })
+  });
 
   // Window menu.
   template[3].submenu.push({
@@ -218,29 +218,29 @@ if (process.platform === 'darwin') {
   }, {
     label: 'Bring All to Front',
     role: 'front'
-  })
+  });
 
-  addUpdateMenuItems(template[0].submenu, 1)
+  addUpdateMenuItems(template[0].submenu, 1);
 }
 
 if (process.platform === 'win32') {
-  const helpMenu = template[template.length - 1].submenu
-  addUpdateMenuItems(helpMenu, 0)
+  const helpMenu = template[template.length - 1].submenu;
+  addUpdateMenuItems(helpMenu, 0);
 }
 
 app.on('ready', function () {
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-})
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+});
 
 app.on('browser-window-created', function () {
-  let reopenMenuItem = findReopenMenuItem()
-  if (reopenMenuItem) reopenMenuItem.enabled = false
-})
+  let reopenMenuItem = findReopenMenuItem();
+  if (reopenMenuItem) reopenMenuItem.enabled = false;
+});
 
 app.on('window-all-closed', function () {
-  let reopenMenuItem = findReopenMenuItem()
-  if (reopenMenuItem) reopenMenuItem.enabled = true
-})
-const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
+  let reopenMenuItem = findReopenMenuItem();
+  if (reopenMenuItem) reopenMenuItem.enabled = true;
+});
+const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);

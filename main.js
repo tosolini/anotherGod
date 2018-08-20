@@ -1,23 +1,23 @@
-const {app, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron')
-const path = require('path')
-const windowStateKeeper = require('electron-window-state')
-const updater = require('./updater')
-const AutoLaunch = require('auto-launch')
+const {app, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
+const path = require('path');
+const windowStateKeeper = require('electron-window-state');
+const updater = require('./updater');
+const AutoLaunch = require('auto-launch');
 const isDev = require('electron-is-dev');
 
 // Mantenere un riferimento globale dell'oggetto window, altrimenti la finestra verrà 
 // chiusa automaticamente quando l'oggetto JavaScript è raccolto nel Garbage Collector.
-let win
-let tray
+let win;
+let tray;
 
 function createWindow () {
-  // fisso i parametri di default della finestra
+  // make window sticky
   let mainWindowState = windowStateKeeper({
     defaultWidth: 1280,
     defaultHeight: 800
-    })
+    });
 
-  // Creazione della finestra del browser.
+  // Create window
   win = new BrowserWindow({
     x: mainWindowState.x,
     y: mainWindowState.y,
@@ -29,30 +29,30 @@ function createWindow () {
       nodeIntegration: true,
       preload: path.join(__dirname, 'renderer.js')
      }, 
-  })
+  });
 
-  win.loadURL('https://mail.google.com')
+  win.loadURL('https://mail.google.com');
 
-  // test tray for Windows
+  // TODO: test tray for Windows
   if (isDev){
     if (process.platform === 'win32') {
-      tray = new Tray(`${__dirname}/icons/16.png`)
+      tray = new Tray(`${__dirname}/icons/16.png`);
       const contextMenu = Menu.buildFromTemplate([
         {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
         {label: 'Close', accelerator: 'CmdOrCtrl+W', role: 'close'}
-      ])
-      tray.setToolTip('Another God')
-      tray.setContextMenu(contextMenu)
+      ]);
+      tray.setToolTip('Another God');
+      tray.setContextMenu(contextMenu);
     }
   }
 
   // Force webContents external links open on default browser
   win.webContents.on('new-window', (event, url) => {
     // stop Electron from opening another BrowserWindow
-    event.preventDefault()
+    event.preventDefault();
     // open the url in the default system browser
-    shell.openExternal(url)
-  })  
+    shell.openExternal(url);
+  });  
 
   if (isDev){
       win.webContents.on('dom-ready', function() {
@@ -61,8 +61,8 @@ function createWindow () {
   }
 
  if (isDev) { 
-  // Apertura degli strumenti per sviluppatori.
-  win.webContents.openDevTools({mode: 'detach'})
+  // Open DevTools
+  win.webContents.openDevTools({mode: 'detach'});
  }
 
 
@@ -71,10 +71,10 @@ function createWindow () {
     // Eliminiamo il riferimento dell'oggetto window;  solitamente si tiene traccia delle finestre
     // in array se l'applicazione supporta più finestre, questo è il momento in cui 
     // si dovrebbe eliminare l'elemento corrispondente.
-    win = null
-  })
+    win = null;
+  });
   // Check for update after x seconds
-  setTimeout( updater.check, 2000)  
+  setTimeout( updater.check, 2000);  
   // Let us register listeners on the window, so we can update the state
   // automatically (the listeners will be removed when the window is closed)
   // and restore the maximized or full screen state
@@ -85,12 +85,13 @@ function createWindow () {
 // Questo metodo viene chiamato quando Electron ha finito
 // l'inizializzazione ed è pronto a creare le finestre browser.
 // Alcune API possono essere utilizzate solo dopo che si verifica questo evento.
-app.on('ready', createWindow)
+app.on('ready', createWindow);
 
 // BadgeCount icon for macos-linux
+// FIXME: not working on ubuntu gnome-shell
 ipcMain.on('async', (event, arg) => {  
-  app.setBadgeCount(arg)
-  //test windows highlight icon on taskbar
+  app.setBadgeCount(arg);
+  //FIXME: windows highlight icon on taskbar
   //win.once('focus', () => win.flashFrame(false))
   //setTimeout(win.flashFrame(true), 5000)
 });
@@ -102,20 +103,20 @@ app.on('window-all-closed', () => {
   // Su macOS è comune che l'applicazione e la barra menù 
   // restano attive finché l'utente non esce espressamente tramite i tasti Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});
 
 app.on('activate', () => {
   // Su macOS è comune ri-creare la finestra dell'app quando
   // viene cliccata l'icona sul dock e non ci sono altre finestre aperte.
   if (win === null) {
-    createWindow()
+    createWindow();
   }
-})
+});
 
 // Load Menu 
-require(path.join(__dirname, 'main-process/menus/menu'))
+require(path.join(__dirname, 'main-process/menus/menu'));
 
 // setup autoLauncher
 var appAutoLauncher = new AutoLaunch({
