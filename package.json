@@ -1,13 +1,31 @@
 {
-  "name": "anotherGod",
-  "version": "0.5.1",
+  "name": "anothergod",
+  "productName": "anotherGod",
+  "version": "0.6.0",
   "description": "Another Gmail on the Dock",
-  "main": "main.js",
-  "author": "Walter Tosolini<software@tosolini.info>",
+  "author": {
+    "name": "Walter Tosolini",
+    "email": "software@tosolini.info",
+    "url": "https://tosolini.info"
+  },
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tosolini/anotherGod.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tosolini/anotherGod/issues"
+  },
+  "keywords": [
+    "gmail",
+    "e-mail",
+    "mail",
+    "app"
+  ],
+  "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "electron .",
+    "test": "eslint .",
     "mac": "electron-builder -m",
     "win": "electron-builder -w",
     "lin": "electron-builder -l",
@@ -31,9 +49,6 @@
       }
     ],
     "mac": {
-      "publish": [
-        "github"
-      ],
       "category": "public.app-category.productivity",
       "target": [
         "dmg",
@@ -41,44 +56,34 @@
       ]
     },
     "win": {
-      "publish": [
-        "github"
-      ],
       "certificateFile": "private/anotherGod.p12",
       "verifyUpdateCodeSignature": false,
       "publisherName": "Walter Tosolini"
     },
     "linux": {
-      "publish": [
-        "github"
-      ],
       "target": [
         "AppImage",
         "deb",
+        "snap",
         "tar.gz"
       ],
       "category": "Network"
     }
   },
-  "repository": "https://github.com/tosolini/anotherGod",
-  "keywords": [
-    "gmail",
-    "e-mail",
-    "mail"
-  ],
   "devDependencies": {
-    "electron": "^2.0.6",
-    "electron-builder": "^20.27.1",
-    "eslint": "^5.4.0"
+    "devtron": "^1.4.0",
+    "electron": "^2.0.10",
+    "electron-builder": "^20.28.4",
+    "eslint": "^5.6.0",
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "ajv": "^6.5.2",
+    "ajv": "^6.5.3",
     "ajv-keywords": "^3.2.0",
     "auto-launch": "^5.0.5",
     "electron-is-dev": "^0.3.0",
-    "electron-updater": "^3.1.1",
+    "electron-updater": "^3.1.2",
     "electron-window-state": "^4.1.1",
-    "gmail-js": "^0.7.7",
     "jquery": "^3.3.1"
   }
 }

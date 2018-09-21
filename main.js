@@ -1,9 +1,11 @@
-const {app, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
-const path = require('path');
-const windowStateKeeper = require('electron-window-state');
-const updater = require('./updater');
-const AutoLaunch = require('auto-launch');
-const isDev = require('electron-is-dev');
+const {
+  app, shell, BrowserWindow, ipcMain, Tray, Menu, session
+} = require("electron");
+const path = require("path");
+const windowStateKeeper = require("electron-window-state");
+const updater = require("./updater");
+const AutoLaunch = require("auto-launch");
+const isDev = require("electron-is-dev");
 
 // Mantenere un riferimento globale dell'oggetto window, altrimenti la finestra verrà 
 // chiusa automaticamente quando l'oggetto JavaScript è raccolto nel Garbage Collector.
@@ -19,6 +21,7 @@ function createWindow () {
 
   // Create window
   win = new BrowserWindow({
+    show: false,
     x: mainWindowState.x,
     y: mainWindowState.y,
     width: mainWindowState.width,
@@ -26,51 +29,62 @@ function createWindow () {
     minWidth: 600,
     icon: `${__dirname}/icons/icon.png`,
     webPreferences: {
-      nodeIntegration: true,
-      preload: path.join(__dirname, 'renderer.js')
-     }, 
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "renderer.js")
+     }
   });
 
-  win.loadURL('https://mail.google.com');
+  // try to make workaround for CSP
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({ responseHeaders: Object.assign({
+        "Content-Security-Policy": [ "object-src 'none'", "script-src 'unsafe-inline' https: http:", "base-uri 'self'" ]
+    }, details.responseHeaders)});
+});
+
+win.loadURL("https://mail.google.com");
+
 
   // TODO: test tray for Windows
   if (isDev){
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
       tray = new Tray(`${__dirname}/icons/16.png`);
       const contextMenu = Menu.buildFromTemplate([
-        {label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize'},
-        {label: 'Close', accelerator: 'CmdOrCtrl+W', role: 'close'}
+        {label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize"},
+        {label: "Close", accelerator: "CmdOrCtrl+W", role: "close"}
       ]);
-      tray.setToolTip('Another God');
+      tray.setToolTip("Another God");
       tray.setContextMenu(contextMenu);
     }
   }
 
   // Force webContents external links open on default browser
-  win.webContents.on('new-window', (event, url) => {
+  win.webContents.on("new-window", (event, url) => {
     // stop Electron from opening another BrowserWindow
     event.preventDefault();
     // open the url in the default system browser
     shell.openExternal(url);
   });  
 
-  if (isDev){
-      win.webContents.on('dom-ready', function() {
-        //win.webContents.insertCSS('html,body{ background-color: #000000 !important;}')
+/*   if (isDev){
+      win.webContents.on("dom-ready", function() {
+        win.webContents.insertCSS('html,body{ background-color: #000000 !important;}')
     });  
-  }
+  } */
 
  if (isDev) { 
   // Open DevTools
-  win.webContents.openDevTools({mode: 'detach'});
+  win.webContents.openDevTools({mode: "detach"});
  }
 
+  // Show window after loading the DOM
+  // Docs: https://electronjs.org/docs/api/browser-window#showing-window-gracefully
+  win.once("ready-to-show", () => {
+    win.show();
+  });
 
-  // Emesso quando la finestra viene chiusa.
-  win.on('closed', () => {
-    // Eliminiamo il riferimento dell'oggetto window;  solitamente si tiene traccia delle finestre
-    // in array se l'applicazione supporta più finestre, questo è il momento in cui 
-    // si dovrebbe eliminare l'elemento corrispondente.
+  // Emitted when windows is closed.
+  win.on("closed", () => {
     win = null;
   });
   // Check for update after x seconds
@@ -79,17 +93,14 @@ function createWindow () {
   // automatically (the listeners will be removed when the window is closed)
   // and restore the maximized or full screen state
   mainWindowState.manage(win);
-  // end createWindow
-}
+} // end createWindow
 
-// Questo metodo viene chiamato quando Electron ha finito
-// l'inizializzazione ed è pronto a creare le finestre browser.
-// Alcune API possono essere utilizzate solo dopo che si verifica questo evento.
-app.on('ready', createWindow);
+
+app.on("ready", createWindow);
 
 // BadgeCount icon for macos-linux
 // FIXME: not working on ubuntu gnome-shell
-ipcMain.on('async', (event, arg) => {  
+ipcMain.on("badge", (event, arg) => {  
   app.setBadgeCount(arg);
   //FIXME: windows highlight icon on taskbar
   //win.once('focus', () => win.flashFrame(false))
@@ -98,16 +109,16 @@ ipcMain.on('async', (event, arg) => {
 
 
 
-// Terminiamo l'App quando tutte le finestre vengono chiuse.
-app.on('window-all-closed', () => {
+// Shutdown the App when all windows are closed.
+app.on("window-all-closed", () => {
   // Su macOS è comune che l'applicazione e la barra menù 
   // restano attive finché l'utente non esce espressamente tramite i tasti Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   // Su macOS è comune ri-creare la finestra dell'app quando
   // viene cliccata l'icona sul dock e non ci sono altre finestre aperte.
   if (win === null) {
@@ -116,12 +127,11 @@ app.on('activate', () => {
 });
 
 // Load Menu 
-require(path.join(__dirname, 'main-process/menus/menu'));
+require(path.join(__dirname, "main/menu"));
 
 // setup autoLauncher
 var appAutoLauncher = new AutoLaunch({
-	name: 'anotherGod',
-	path: '/Applications/anotherGod.app',
+	name: "anotherGod",
+	path: "/Applications/anotherGod.app",
 });
-
 appAutoLauncher.enable();

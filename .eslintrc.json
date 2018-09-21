@@ -1,28 +1,28 @@
 {
     "env": {
         "browser": true,
+        "es6": true,
         "node": true
     },
     "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": 2018
-    },
     "rules": {
+        "no-unused-vars": "off",
+        "no-undef": "off",
+        "no-useless-escape": "off",
+        "no-constant-condition": "off",
         "indent": [
             "off",
             "tab"
         ],
         "linebreak-style": [
-            "error",
+            "off",
             "unix"
         ],
         "quotes": [
             "error",
-            "single"
+            "double"
         ],
-        "no-unused-vars": [
-            "off"
-        ],
+        "no-console": "off",
         "semi": [
             "error",
             "always"
